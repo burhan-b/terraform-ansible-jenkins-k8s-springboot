@@ -1,0 +1,19 @@
+---
+- name: Start Configuration of the servers
+  hosts: ec2
+  become: yes
+
+  roles:
+    - role: jenkins
+      when: inventory_hostname == "jenkins"
+    
+    - role: master
+      vars:
+        k8s_yaml_files: 
+          - k8s/spring-microservice-deployment.yaml
+          - k8s/spring-microservice-service.yaml
+          - k8s/spring-microservice-ingress.yaml
+      when: inventory_hostname == "master"
+
+    - role: slave
+      when: inventory_hostname == "slave1" or inventory_hostname == "slave2"

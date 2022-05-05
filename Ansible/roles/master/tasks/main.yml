@@ -1,0 +1,134 @@
+- name: Install Docker Requirements
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Add Dokcer GPG Key
+  shell: " curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
+
+- name: Docker Stable Version
+  shell: 'echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+
+- name: Apt Update
+  apt:
+    name: '*'
+    state: present
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  ignore_errors: true
+
+- name: "Start docker service"
+  service:
+    name: "docker"
+    state: started
+    enabled: yes
+
+- name: "Add key for kubernetes"
+  shell: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add"
+
+- name: "Add repository for kubernetes"
+  apt_repository:
+    repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+
+- name: disabling selinux
+  selinux:
+    policy: targeted
+    state: permissive
+  ignore_errors: yes
+  changed_when: false 
+
+- name: "Installing kubeadm, kubectl and kubelet"
+  package:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+
+- name: "Enabling kubelet"
+  service:
+    name: kubelet
+    state: started
+    enabled: yes
+  changed_when: false
+
+- name: "Pulling Images of Docker"
+  command: "kubeadm config images pull"
+
+- name: "Changing the Driver"
+  copy:
+    src: "{{ role_path }}/files/docker_daemon.json"
+    dest: "/etc/docker/daemon.json"
+  register: driver_output
+
+- name: "Restarting docker service"
+  service:
+    name: "docker"
+    state: restarted
+
+- debug:
+    var: driver_output
+
+- name: "Installing iproute-tc "
+  package:
+    name: "iproute-tc"
+    state: present
+
+- name: "Setting bridge-nf-call-iptables to 1"
+  shell: |
+       echo "1" > /proc/sys/net/bridge/bridge-nf-call-iptables
+  changed_when: false
+
+- name: "Connect the k8s_Slave to Master"
+  shell: "{{ token }}"
+  ignore_errors: yes
+  register: connected
+
+- debug:
+     var: connected
+
+- name: "printing token"
+  debug:
+       msg: "{{ hostvars['tokens']['token_k8s'] }}"
+  register: newtoken
+
+- name: "Joining slave to master" 
+  shell: "{{ newtoken.msg }}"
+
+#- name: "Starting the K8s_Master"
+#  shell: "kubeadm init --pod-network-cidr=10.240.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem --node-name=master"
+#  ignore_errors: yes
+#
+#- name: "Creating the directory for kube"
+#  shell: "mkdir -p $HOME/.kube"
+#
+#- name: " Copy the kubernetes_admin file"
+#  shell: "sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config"
+#
+#- name: " Changing the owner permission"
+#  shell: "sudo chown $(id -u):$(id -g) $HOME/.kube/config"
+#
+#- name: "Configuring the flannel plugin"
+#  shell: "kubectl apply  -f {{ item }}"
+#  loop: "{{ k8s_yaml_files }}"
+#
+#- name: "Token Generation"
+#  shell: "kubeadm token create  --print-join-command"
+#  register: k8s_token
+#  ignore_errors: yes
+#
+#- debug:
+#    var: k8s_token.stdout_lines
+#  register: token

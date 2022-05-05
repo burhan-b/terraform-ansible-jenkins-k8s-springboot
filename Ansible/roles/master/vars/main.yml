@@ -1,0 +1,10 @@
+---
+# vars file for master
+
+packages:
+  - kubelet
+  - kubeadm
+  - kubectl
+
+k8s_yaml_files:
+  - ""
