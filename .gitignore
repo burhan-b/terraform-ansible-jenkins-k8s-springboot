@@ -1,0 +1,4 @@
+.terraform
+terraform.tfstate.d
+.gitignore.swp
+.terraform.lock.hcl

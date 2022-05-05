@@ -1,0 +1,90 @@
+---
+- name: Configure the servers
+  hosts: ec2
+  become: yes
+
+  tasks:
+  - block:
+    #- name: Update packages
+    #  dnf:
+    #    name: "*"
+    #    state: present
+#
+    #- name: Install requirements
+    #  dnf:
+    #    name: 
+    #      - software-properties-common
+    ##      - curl
+    ##      - wget
+    #    state: present
+
+    #- name: Download required packages python3-crypto
+    #  get_url:
+    #    url: http://archive.ubuntu.com/ubuntu/pool/main/p/python-crypto/python3-crypto_2.6.1-13ubuntu2_amd64.deb
+    #    dest: /tmp/python3-crypto_2.6.1-13ubuntu2_amd64.deb
+    #
+    #- name: Install ansible python3-crypto
+    #  shell: "dpkg -i /tmp/python3-crypto_2.6.1-13ubuntu2_amd64.deb"
+    #
+    #- name: Download required packages python3-dnspython
+    #  get_url:
+    #    url: http://archive.ubuntu.com/ubuntu/pool/main/d/dnspython/python3-dnspython_1.16.0-1build1_all.deb
+    #    dest: /tmp/python3-dnspython_1.16.0-1build1_all.deb
+    #
+    #- name: Install ansible python3-dnspython
+    #  shell: "dpkg -i /tmp/python3-dnspython_1.16.0-1build1_all.deb"
+#
+    #- name: Download required packages python3-netaddr
+    #  get_url:
+    #    url: http://archive.ubuntu.com/ubuntu/pool/main/p/python-netaddr/python3-netaddr_0.7.19-3_all.deb
+    #    dest: /tmp/python3-netaddr_0.7.19-3_all.deb
+    #
+    #- name: Install ansible python3-netaddr
+    #  shell: "dpkg -i /tmp/python3-netaddr_0.7.19-3_all.deb"
+#
+    - name: Download ansible package
+      get_url:
+        url: http://archive.ubuntu.com/ubuntu/pool/universe/a/ansible/ansible_2.9.6+dfsg-1_all.deb
+        dest: /tmp/ansible_2.9.6+dfsg-1_all.deb
+#
+    - name: Install ansible
+      shell: "dpkg -i /tmp/ansible_2.9.6+dfsg-1_all.deb"
+#
+    #- name: Install pip
+    #  shell: "curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py"
+    #
+    #- name: Run pip
+    #  shell: "python3 get-pip.py --user"
+    #
+    #- name: Install ansible
+    #  shell: "python3 -m pip install --user ansible"
+
+    #- name: Install ansible
+    #  dnf:
+    #    name: ansible
+    #    state: present
+
+    - name: Create Ansible directory
+      file:
+        path: $USER/Ansible
+        state: directory
+
+    - name: Copy Ansible files
+      copy: 
+        src: Ansible
+        dest: $USER/Ansible
+    
+    - name: Copy inventory
+      copy:
+        src: inventory
+        dest: $USER/Ansible/inventory
+    
+    - name: Copy keypair
+      copy:
+        src: ipseckeypair.pem
+        dest: $USER/Ansible/ipseckeypair.pem
+
+    - name: Start roles
+      shell: "cd $USER/Ansible; ansible-playbook -i inventory configure.yml"
+
+    when: inventory_hostname == "ansiblecn"
