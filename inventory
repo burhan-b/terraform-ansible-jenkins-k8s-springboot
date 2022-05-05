@@ -1,6 +1,6 @@
 [ec2]
-ansiblecn ansible_host=3.249.57.139 ansible_user=ec2-user
-jenkins ansible_host=52.50.49.5
-master ansible_host=54.229.137.146
-slave1 ansible_host=54.170.37.67
-slave2 ansible_host=3.249.194.15
+ansiblecn ansible_host=54.171.120.57 #ansible_user=ec2-user
+jenkins ansible_host=52.31.101.112
+master ansible_host=3.248.181.127
+slave1 ansible_host=3.250.95.59
+slave2 ansible_host=34.242.244.42

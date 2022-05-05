@@ -45,6 +45,14 @@ resource "aws_security_group" "TerraformSG" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  // To Allow Port 80 Transport
+  ingress {
+    from_port = 8080
+    protocol = "tcp"
+    to_port = 8080
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port       = 0
     to_port         = 0
@@ -89,7 +97,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_instance" "ansiblecn" {
   count = terraform.workspace == "aws_prod" ? 1 : 0
 
-  ami           = var.ami[1]
+  ami           = var.ami[0]
   instance_type = var.instance_type
 
   availability_zone      = element(var.az, count.index)
@@ -173,7 +181,7 @@ resource "aws_instance" "slave2" {
 resource "local_file" "inventory" {
     content  = <<EOF
 [ec2]
-ansiblecn ansible_host=${aws_instance.ansiblecn[0].public_ip} ansible_user=ec2-user
+ansiblecn ansible_host=${aws_instance.ansiblecn[0].public_ip} #ansible_user=ec2-user
 jenkins ansible_host=${aws_instance.jenkins[0].public_ip}
 master ansible_host=${aws_instance.master[0].public_ip}
 slave1 ansible_host=${aws_instance.slave1[0].public_ip}
