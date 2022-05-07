@@ -98,7 +98,7 @@ resource "aws_instance" "ansiblecn" {
   count = terraform.workspace == "aws_prod" ? 1 : 0
 
   ami           = var.ami[0]
-  instance_type = var.instance_type
+  instance_type = var.instance_type[0]
 
   availability_zone      = element(var.az, count.index)
   subnet_id              = aws_subnet.subnet_public1[count.index].id
@@ -115,7 +115,7 @@ resource "aws_instance" "jenkins" {
   count = terraform.workspace == "aws_prod" ? 1 : 0
 
   ami           = var.ami[0]
-  instance_type = var.instance_type
+  instance_type = var.instance_type[1]
 
   availability_zone      = element(var.az, count.index)
   subnet_id              = aws_subnet.subnet_public1[count.index].id
@@ -132,7 +132,7 @@ resource "aws_instance" "master" {
   count = terraform.workspace == "aws_prod" ? 1 : 0
 
   ami           = var.ami[0]
-  instance_type = var.instance_type
+  instance_type = var.instance_type[1]
 
   availability_zone      = element(var.az, count.index)
   subnet_id              = aws_subnet.subnet_public1[count.index].id
@@ -149,7 +149,7 @@ resource "aws_instance" "slave1" {
   count = terraform.workspace == "aws_prod" ? 1 : 0
 
   ami           = var.ami[0]
-  instance_type = var.instance_type
+  instance_type = var.instance_type[0]
 
   availability_zone      = element(var.az, count.index)
   subnet_id              = aws_subnet.subnet_public1[count.index].id
@@ -166,7 +166,7 @@ resource "aws_instance" "slave2" {
   count = terraform.workspace == "aws_prod" ? 1 : 0
 
   ami           = var.ami[0]
-  instance_type = var.instance_type
+  instance_type = var.instance_type[0]
 
   availability_zone      = element(var.az, count.index)
   subnet_id              = aws_subnet.subnet_public1[count.index].id

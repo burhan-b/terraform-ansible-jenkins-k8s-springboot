@@ -47,7 +47,8 @@ variable "environment_tag" {
 }
 
 variable "instance_type" {
-  default = "t2.micro"
+  type    = list(string)
+  default = ["t2.micro", "t2.medium"]
 }
 
 variable "keypair" {

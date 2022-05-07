@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-microservice
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-microservice
+  template:
+    metadata:
+      labels:
+        app: spring-microservice
+    spec:
+      containers:
+        - name: spring-microservice
+          image: burhandocker2021/spring-microservice:latest
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '500m'
+            limits:
+              memory: '512Mi'
+              cpu: '1'
+          ports:
+            - name: http
+              containerPort: 8080
+      imagePullSecrets:
+        - name: trccred

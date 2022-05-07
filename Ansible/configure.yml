@@ -2,14 +2,17 @@
 - name: Start Configuration of the servers
   hosts: ec2
   become: yes
+  ignore_errors: true
+  vars:
+    token_1: ""
 
   roles:
     - role: jenkins
       when: inventory_hostname == "jenkins"
-    
+
     - role: master
       vars:
-        k8s_yaml_files: 
+        k8s_yaml_files:
           - k8s/spring-microservice-deployment.yaml
           - k8s/spring-microservice-service.yaml
           - k8s/spring-microservice-ingress.yaml

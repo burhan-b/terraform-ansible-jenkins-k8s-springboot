@@ -7,4 +7,6 @@ packages:
   - kubectl
 
 k8s_yaml_files:
-  - ""
+  - "spring-microservice-deployment.yaml"
+  - "spring-microservice-service.yaml"
+  - "spring-microservice.ingress.yaml"

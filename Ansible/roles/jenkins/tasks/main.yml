@@ -41,29 +41,10 @@
       - lsb-release
     state: present
 
-- name: Add Dokcer GPG Key
-  shell: " curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-"
-
-- name: Docker Stable Version
-  shell: 'echo \
-"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
-
-- name: Apt Update
-  apt:
-    name: '*'
-    state: present
-
 - name: Install Docker
-  shell: "apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin"
-  ignore_errors: true
-
-- name: Add docker group to jenkins
-  user:
-    append: yes
-    groups:
-      - sudo
-      - docker
-    name: jenkins
-  ignore_errors: true
+  shell: ' curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+apt-get update -y && \
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin && \
+usermod -aG docker jenkins'

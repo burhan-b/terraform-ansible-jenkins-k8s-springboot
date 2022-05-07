@@ -7,28 +7,13 @@
       - lsb-release
     state: present
 
-- name: Add Dokcer GPG Key
-  shell: " curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
-
-- name: Docker Stable Version
-  shell: 'echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
-
-- name: Apt Update
-  apt:
-    name: '*'
-    state: present
-
 - name: Install Docker
-  apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-compose-plugin
-    state: present
-  ignore_errors: true
+  shell: ' curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+apt-get update -y && \
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin && \
+usermod -aG docker ubuntu'
 
 - name: "Start docker service"
   service:
@@ -45,11 +30,10 @@
     state: present
 
 - name: disabling selinux
-  selinux:
-    policy: targeted
-    state: permissive
+  ufw:
+    state: disabled
   ignore_errors: yes
-  changed_when: false 
+  changed_when: false
 
 - name: "Installing kubeadm, kubectl and kubelet"
   package:
@@ -83,7 +67,7 @@
 
 - name: "Installing iproute-tc "
   package:
-    name: "iproute-tc"
+    name: "iproute2"
     state: present
 
 - name: "Setting bridge-nf-call-iptables to 1"
@@ -92,7 +76,7 @@
   changed_when: false
 
 - name: "Connect the k8s_Slave to Master"
-  shell: "{{ token }}"
+  shell: "{{ token_1  }}"
   ignore_errors: yes
   register: connected
 
